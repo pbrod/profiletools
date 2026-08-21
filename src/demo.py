@@ -1,9 +1,11 @@
 """
-Demo script for profiletools
-Run this file to see all README examples in action.
+Windows‑safe demo script for profiletools.
+Each example runs in isolation and explicitly disables the profiler
+to avoid line_profiler shutdown errors on Windows.
 """
 
-from profiletools import TimeWith, do_cprofile, do_profile, timefun
+import sys
+from profiletools import timefun, TimeWith, do_cprofile, do_profile
 
 
 # ------------------------------------------------------------
@@ -68,6 +70,7 @@ def demo_do_profile_follow():
 def run_do_profile_follow():
     print("\n=== Example: @do_profile(follow=[helper]) ===")
     demo_do_profile_follow()
+    sys.setprofile(None)  # Windows-safe teardown
 
 
 # ------------------------------------------------------------
@@ -87,6 +90,7 @@ class WorkerFollowName:
 def run_do_profile_follow_name():
     print("\n=== Example: @do_profile(follow=['_numbers']) on class method ===")
     WorkerFollowName().compute()
+    sys.setprofile(None)  # Windows-safe teardown
 
 
 # ------------------------------------------------------------
@@ -110,6 +114,7 @@ class WorkerAllMethods:
 def run_do_profile_all_methods():
     print("\n=== Example: @do_profile(follow_all_methods=True) ===")
     WorkerAllMethods().compute()
+    sys.setprofile(None)  # Windows-safe teardown
 
 
 # ------------------------------------------------------------
@@ -129,18 +134,20 @@ def run_do_profile_manual():
     print("\n=== Example: do_profile(...) without decorator ===")
     worker = WorkerManual()
     do_profile(follow=[worker._numbers])(worker.compute)()
+    sys.setprofile(None)  # Windows-safe teardown
 
 
 # ------------------------------------------------------------
 # Main runner
 # ------------------------------------------------------------
 if __name__ == "__main__":
-    # run_timefun()
-    # run_timewith()
+    run_timefun()
+    run_timewith()
     run_cprofile()
-    # run_do_profile_follow()
-    # run_do_profile_follow_name()
-    # run_do_profile_all_methods()
-    # run_do_profile_manual()
+    run_do_profile_follow()
+    run_do_profile_follow_name()
+    run_do_profile_all_methods()
+    run_do_profile_manual()
 
     print("\nAll examples completed.")
+    sys.setprofile(None)  # Final safety
