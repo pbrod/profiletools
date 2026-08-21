@@ -11,10 +11,10 @@ Lightweight, decorator-based profiling utilities for Python.
 
 It is designed to be:
 
-- minimal  
-- dependency-light  
-- easy to use  
-- suitable for both quick diagnostics and deeper profiling  
+- minimal
+- dependency-light
+- easy to use
+- suitable for both quick diagnostics and deeper profiling
 
 ---
 
@@ -48,18 +48,18 @@ Choose the tool that matches your needs:
 
 ## ✨ Features
 
-- `timefun` — measure execution time of any function  
-- `TimeWith` — time code blocks with checkpoints  
-- `do_cprofile` — function-level profiling using `cProfile`  
-- `do_profile` — line-by-line profiling (optional dependency: `line_profiler`)  
+- `timefun` — measure execution time of any function
+- `TimeWith` — time code blocks with checkpoints
+- `do_cprofile` — function-level profiling using `cProfile`
+- `do_profile` — line-by-line profiling (optional dependency: `line_profiler`)
 
 Supports profiling:
 
-- standalone functions  
-- class methods  
-- additional functions via `follow=`  
-- all methods of a class via `follow_all_methods=True`  
-- direct decorator application or manual wrapping  
+- standalone functions
+- class methods
+- additional functions via `follow=`
+- all methods of a class via `follow_all_methods=True`
+- direct decorator application or manual wrapping
 
 ---
 
@@ -156,7 +156,7 @@ def calculate(x):
     time.sleep(0.1)
     return x**3
 
-@do_cprofile
+@do_cprofile()
 def expensive_function():
     for x in range(10):
         i = calculate(x)
@@ -332,7 +332,7 @@ Will profile:
 
 ## 📄 License
 
-This project is licensed under the **BSD-3-Clause License**.  
+This project is licensed under the **BSD-3-Clause License**.
 See the [LICENSE](LICENSE) file for details.
 
 ---
@@ -343,4 +343,3 @@ Pull requests are welcome.
 
 If you discover a bug or would like to propose an enhancement, please
 open an issue or submit a pull request.
-
