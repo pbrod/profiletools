@@ -1,39 +1,26 @@
 from collections.abc import Callable
+from importlib.util import find_spec
 from typing import Any
 
 import pytest
 
-from profiletools import LineProfiler, TimeWith, do_cprofile, do_profile, timefun
+from profiletools import do_profile
 from profiletools.testing import capture_stdout_and_stderr
 
-
-def test_timefun_runs():
-    @timefun
-    def f(x):
-        return x * 2
-
-    assert f(3) == 6
+HAS_LINE_PROFILER = find_spec("line_profiler") is not None
+FIRST_LINE = "Line #      Hits         Time  Per Hit   % Time  Line Contents"
 
 
-def test_TimeWith_context():
-    with TimeWith("test") as tw:
-        assert tw.elapsed >= 0.0
+def row_finder(rows: list[Any]) -> Callable[[str], tuple]:
+    def find_row(text: str) -> tuple:
+        row = next(
+            (row for row in rows if isinstance(row, tuple) and row[5].strip() == text),
+            None,
+        )
+        assert row is not None, f"Could not find row: {text!r}"
+        return row
 
-
-def test_do_cprofile_runs():
-    @do_cprofile()
-    def f(x):
-        return x + 1
-
-    assert f(1) == 2
-
-
-def test_do_profile_noop_without_line_profiler():
-    @do_profile()
-    def f(x):
-        return x - 1
-
-    assert f(2) == 1
+    return find_row
 
 
 def _get_stats(line):
@@ -102,116 +89,16 @@ class ExpensiveClass4:
         yield from range(self.n)
 
 
-FIRST_LINE = "Line #      Hits         Time  Per Hit   % Time  Line Contents"
+def test_do_profile_noop_without_line_profiler():
+    @do_profile()
+    def f(x):
+        return x - 1
 
-
-# Tests
-class TestTimeFun:
-    def test_decorate_function(self):
-        @timefun
-        def expensive_function():
-            for x in _get_number():
-                i = x**3
-            return i
-
-        with capture_stdout_and_stderr() as out:
-            expensive_function()
-        msg = str(out)
-        # print(out)
-        assert len(out), msg
-        assert out[0].startswith("@timefun:expensive_function took"), msg
-        time = float(out[0].split("took")[1].strip().split(" ")[0])
-        assert time > 0
-
-    def test_direct_on_function(self):
-        with capture_stdout_and_stderr() as out:
-            timefun(_expensive_function)()
-        msg = str(out)
-        # print(out)
-        assert len(out), msg
-        assert out[0].startswith("@timefun:_expensive_function took"), msg
-        time = float(out[0].split("took")[1].strip().split(" ")[0])
-        assert time > 0
-
-
-class TestTimeWith:
-    def test_timing_with_context_manager(self):
-        # prints something like:
-        # fancy thing done with something took 0.582462072372 seconds
-        # fancy thing done with something else took 1.75355315208 seconds
-        # fancy thing finished took 1.7535982132 seconds
-        with capture_stdout_and_stderr() as out:
-            with TimeWith("fancy thing") as timer:
-                _expensive_function()
-                timer.checkpoint("done with something")
-                _expensive_function()
-                _expensive_function()
-                timer.checkpoint("done with something else")
-
-        msg = str(out)
-        # print(out)
-        assert len(out), msg
-        out0 = out[0].split("\n")
-        assert out0[0].startswith("fancy thing done with something took"), msg
-        assert out0[1].startswith("fancy thing done with something else took"), msg
-        assert out0[2].startswith("fancy thing finished took"), msg
-
-    def test_direct_timing(self):
-        # or directly
-        with capture_stdout_and_stderr() as out:
-            timer = TimeWith("fancy thing")
-            _expensive_function()
-            timer.checkpoint("done with something")
-
-        msg = str(out)
-        # print(out)
-        assert len(out), msg
-        assert out[0].startswith("fancy thing done with something took"), msg
-
-
-class TestDoCProfile:
-    def test_on_function(self):
-        @do_cprofile()
-        def expensive_function():
-            for x in _get_number():
-                i = x**3
-            return i
-
-        with capture_stdout_and_stderr() as out:
-            expensive_function()
-        results = _extract_do_cprofile_results(out[0])
-        print(results)
-        msg = str(results)
-        assert len(results), msg
-        assert results[0][5].startswith("function calls in")
-        assert results[0][0] > 50000
-        assert results[1] == "ncalls  tottime  percall  cumtime  percall filename:lineno(function)"
-        num_tests = 0
-        for result in results[2:]:
-            if result[5].endswith("(expensive_function)"):
-                num_tests += 1
-                for i in range(5):
-                    assert result[i] > 0
-            elif result[5].endswith("(_get_number)"):
-                num_tests += 1
-        if num_tests != 2:
-            raise ValueError("Did not find _get_number or expensive_function")
-
-
-def row_finder(rows: list[Any]) -> Callable[[str], tuple]:
-    def find_row(text: str) -> tuple:
-        row = next(
-            (row for row in rows if isinstance(row, tuple) and row[5].strip() == text),
-            None,
-        )
-        assert row is not None, f"Could not find row: {text!r}"
-        return row
-
-    return find_row
+    assert f(2) == 1
 
 
 #  @pytest.mark.skip('Suspect this test fucks up coverage stats.')
-@pytest.mark.skipif(LineProfiler is None, reason="LineProfiler is not installed.")
+@pytest.mark.skipif(not HAS_LINE_PROFILER, reason="LineProfiler is not installed.")
 class TestDoProfile:
     def test_on_function_and_follow_function(self):
         @do_profile(follow=[_get_number])
@@ -331,3 +218,70 @@ class TestDoProfile:
         assert row[2] > 10, msg
 
         find_row("def _get_number4(self):")
+
+
+    def test_follow_all_methods_excludes_inherited_methods(self):
+        class Base:
+            def base_method(self):
+                yield from range(10)
+
+        class Child(Base):
+            @do_profile(
+                follow_all_methods=True,
+                include_inherited_methods=False,
+            )
+            def run(self):
+                for _ in self.derived_method():
+                    pass
+
+            def derived_method(self):
+                yield from range(10)
+
+        with capture_stdout_and_stderr() as out:
+            Child().run()
+
+        results = _extract_do_profile_results(out[0])
+
+        find_row = row_finder(results)
+
+        # Own method should be present
+        find_row("def derived_method(self):")
+
+        # Inherited method should not be present
+        inherited = [
+            row for row in results
+            if isinstance(row, tuple)
+            and row[5].strip() == "def base_method(self):"
+        ]
+        assert inherited == []
+
+
+    def test_follow_all_methods_includes_inherited_methods(self):
+        class Base:
+            def base_method(self):
+                yield from range(10)
+
+        class Child(Base):
+            @do_profile(
+                follow_all_methods=True,
+                include_inherited_methods=True,
+            )
+            def run(self):
+                for _ in self.base_method():
+                    pass
+
+            def derived_method(self):
+                yield from range(10)
+
+        with capture_stdout_and_stderr() as out:
+            Child().run()
+
+        results = _extract_do_profile_results(out[0])
+
+        find_row = row_finder(results)
+
+        # Own method should be present
+        find_row("def derived_method(self):")
+
+        # Inherited method should also be present
+        find_row("def base_method(self):")

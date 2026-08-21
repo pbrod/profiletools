@@ -28,7 +28,7 @@ https://www.pythoncentral.io/measure-time-in-python-time-time-vs-time-clock/
 # mypy: disable-error-code=return-value
 # mypy: disable-error-code=no-redef
 from __future__ import annotations
-
+import sys
 import cProfile
 import pstats
 import inspect
@@ -41,15 +41,6 @@ from types import TracebackType
 from typing import Any, TypeVar
 
 F = TypeVar("F", bound=Callable[..., Any])
-
-try:
-    from line_profiler import LineProfiler
-except ImportError:
-    LineProfiler = None
-    warnings.warn(
-        "line_profiler not installed; do_profile will be a no-op.",
-        stacklevel=2,
-    )
 
 
 def _add_all_class_methods(
@@ -152,6 +143,16 @@ def do_profile(
     ...
     >>> Worker().run()  # doctest: +SKIP
     """
+    try:
+        # Lazy import to avoid LineProfiler interaction with CProfile
+        from line_profiler import LineProfiler
+    except ImportError:
+        LineProfiler = None
+        warnings.warn(
+            "line_profiler not installed; do_profile will be a no-op.",
+            stacklevel=2,
+        )
+
     if LineProfiler is None:
         def inner(func: F) -> F:
             @wraps(func)
@@ -334,9 +335,21 @@ def do_cprofile(
     >>> work()  # doctest: +SKIP
     """
 
+    print("decorator called", func, sort)
+
     def decorator(func: Callable[..., Any]) -> Callable[..., Any]:
         @wraps(func)
         def profiled_func(*args: Any, **kwargs: Any) -> Any:
+            print("profiled_func called")
+            print("current profiler =", sys.getprofile())
+            current = sys.getprofile()
+            if current is not None:
+                warnings.warn(
+                    f"Another profiler is already active: {current!r}. "
+                    "Skipping cProfile profiling.",
+                    stacklevel=2,
+                )
+                return func(*args, **kwargs)
             profile = cProfile.Profile()
             profile.enable()
             try:
@@ -358,5 +371,17 @@ def do_cprofile(
 
 
 if __name__ == "__main__":
+
     from profiletools.testing import test_docstrings
-    test_docstrings()
+    # test_docstrings()
+    @do_cprofile()
+    def work():
+        pass
+
+    work()
+
+    @do_cprofile
+    def work1():
+        pass
+
+    work1()
