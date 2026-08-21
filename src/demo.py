@@ -5,7 +5,9 @@ to avoid line_profiler shutdown errors on Windows.
 """
 
 import sys
+import time
 from profiletools import timefun, TimeWith, do_cprofile, do_profile
+
 
 
 # ------------------------------------------------------------
@@ -41,10 +43,14 @@ def run_timewith():
 # ------------------------------------------------------------
 # 3. Profiling a function with @do_cprofile
 # ------------------------------------------------------------
-@do_cprofile
+def calculate(x):
+    time.sleep(0.1)
+    return x**3
+
+@do_cprofile()
 def demo_cprofile():
-    for x in range(50000):
-        i = x**3
+    for x in range(10):
+        i = calculate(x)
     return i
 
 
@@ -141,6 +147,7 @@ def run_do_profile_manual():
 # Main runner
 # ------------------------------------------------------------
 if __name__ == "__main__":
+    print("Starting demo.....")
     run_timefun()
     run_timewith()
     run_cprofile()
