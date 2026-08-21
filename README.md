@@ -77,6 +77,40 @@ Python profiling tools.
 
 ---
 
+## 🔍 Profiler Decision Tree (Quick Guide)
+
+Choose the right tool based on what you need:
+
+```text
+Start
+ ├── Need simple timing?
+ │     ├── Time a function → timefun
+ │     ├── Time a block → TimeWith
+ │     ├── Single-expression micro-benchmark → timeit
+ │     └── Multi-statement micro-benchmark → timerit
+ │
+ ├── Need per-line detail?
+ │     └── LineProfiler / profiletools @do_profile
+ │
+ ├── Need per-function detail?
+ │     └── cProfile / profiletools @do_cprofile
+ │
+ ├── Need whole-program insight?
+ │     ├── Call-stack timeline → PyInstrument
+ │     └── CPU+GPU+memory → Scalene
+ │
+ ├── Profiling async/thread/gevent?
+ │     └── Yappi
+ │
+ ├── Profiling PyTorch GPU/autograd?
+ │     └── torch.profiler
+ │
+ └── Want decorator-based targeted profiling?
+       └── profiletools
+```
+
+---
+
 ## 📥 Installation
 
 ### Basic installation
