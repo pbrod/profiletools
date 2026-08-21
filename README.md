@@ -3,11 +3,11 @@
 [![PyPI](https://img.shields.io/pypi/v/profiletools.svg)](https://pypi.org/project/profiletools/)
 ![Python Versions](https://img.shields.io/pypi/pyversions/profiletools.svg)
 [![License: BSD-3-Clause](https://img.shields.io/badge/License-BSD--3--Clause-blue.svg)](LICENSE)
-[![Downloads](https://img.shields.io/pypi/dm/profiletools.svg)](https://pypistats.org/packages/profiletools)
 [![Downloads](https://img.shields.io/badge/dynamic/json?url=https://pypistats.org/api/packages/profiletools/recent&label=Downloads%20per%20month&query=$.data.last_month&color=blue)](https://pypistats.org/packages/profiletools)
 
-Lightweight, decorator-based profiling utilities for Python.  
-`profiletools` provides simple timing tools, cProfile integration, and optional line-by-line profiling via `line_profiler`.
+Lightweight, decorator-based profiling utilities for Python.
+
+`profiletools` provides simple timing utilities, cProfile integration, and optional line-by-line profiling through `line_profiler`.
 
 It is designed to be:
 
@@ -18,7 +18,35 @@ It is designed to be:
 
 ---
 
-## Features
+## 🚀 Quick Start
+ 
+```python
+from profiletools import timefun
+ 
+@timefun
+def slow_function():
+    for i in range(100_000):
+        _ = i**2
+
+slow_function()
+```
+
+
+Output:
+```text
+@timefun:slow_function took 0.001234 seconds
+```
+
+
+Choose the tool that matches your needs:
+- `@timefun` for lightweight timing
+- `TimeWith` for timing arbitrary code blocks
+- `@do_cprofile` for function-level profiling with `cProfile`
+- `@do_profile` for line-by-line profiling with `line_profiler`
+
+---
+
+## ✨ Features
 
 - `timefun` — measure execution time of any function  
 - `TimeWith` — time code blocks with checkpoints  
@@ -29,13 +57,27 @@ Supports profiling:
 
 - standalone functions  
 - class methods  
-- helper functions via `follow=`  
+- additional functions via `follow=`  
 - all methods of a class via `follow_all_methods=True`  
 - direct decorator application or manual wrapping  
 
 ---
 
-## Installation
+## 🤔 Why profiletools?
+ 
+`profiletools` provides a simple decorator-based interface on top of
+Python profiling tools.
+ 
+| Tool | Purpose |
+|--------|----------|
+| `timefun` | Lightweight timing of functions |
+| `TimeWith` | Timing code blocks with checkpoints |
+| `do_cprofile` | Easy integration with `cProfile` |
+| `do_profile` | Line-by-line profiling using `line_profiler` |
+
+---
+
+## 📥 Installation
 
 ### Basic installation
 
@@ -49,11 +91,11 @@ pip install profiletools
 pip install profiletools[line]
 ```
 
-This installs `line_profiler`, which powers `@do_profile`.
+The `line_profiler` dependency is optional and only required when using `@do_profile`.
 
 ---
 
-## Usage Examples
+## 📚 Usage Examples
 
 ---
 
@@ -107,22 +149,30 @@ expensive block finished took 0.234890 seconds
 ## 🧵 Profiling a function with `@do_cprofile`
 
 ```python
+import time
 from profiletools import do_cprofile
+
+def calculate(x):
+    time.sleep(0.1)
+    return x**3
 
 @do_cprofile
 def expensive_function():
-    for x in range(50000):
-        i = x**3
+    for x in range(10):
+        i = calculate(x)
     return i
 
 expensive_function()
 ```
 
-Produces standard `cProfile` output:
+Produces output similar to:
 
 ```
-         50000    0.012    0.000    0.012    0.000 example.py:10(expensive_function)
-             1    0.000    0.000    0.012    0.012 {built-in method builtins.range}
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+       10    0.000    0.000    1.003    0.100 demo.py:46(calculate)
+        1    0.000    0.000    1.003    1.003 demo.py:50(expensive_function)
+       10    1.003    0.100    1.003    0.100 {built-in method time.sleep}
+        1    0.000    0.000    0.000    0.000 {method 'disable' of '_lsprof.Profiler' objects}
 ```
 
 ---
@@ -151,12 +201,23 @@ expensive_function()
 Output includes both functions:
 
 ```
+Function: expensive_function at line 63
+
 Line #      Hits         Time  Per Hit   % Time  Line Contents
-...
-def helper():
-...
-@do_profile(follow=[helper])
-...
+==============================================================
+    63                                           @do_profile(follow=[helper])
+    64                                           def expensive_function():
+    65      5001      28256.0      5.7     65.2      for x in helper():
+    66      5000      15103.0      3.0     34.8          i = x**3
+    67         1          3.0      3.0      0.0      return i
+
+
+Function: helper at line 59
+
+Line #      Hits         Time  Per Hit   % Time  Line Contents
+==============================================================
+    59                                           def helper():
+    60         1         49.0     49.0    100.0      yield from range(5000)
 ```
 
 ---
@@ -211,6 +272,37 @@ This automatically profiles:
 - `_numbers`
 - `_small_numbers`
 
+```
+Function: Worker.compute at line 100
+
+Line #      Hits         Time  Per Hit   % Time  Line Contents
+==============================================================
+   100                                               @do_profile(follow_all_methods=True)
+   101                                               def compute(self):
+   102      5001      36921.0      7.4      1.4          for x in self._numbers():
+   103    255000    1760586.0      6.9     66.9              for y in self._small_numbers():
+   104    250000     835163.0      3.3     31.7                  i = x ^ y
+   105         1          5.0      5.0      0.0          return i
+
+Total time: 4.3e-06 s
+
+Function: Worker._numbers at line 107
+
+Line #      Hits         Time  Per Hit   % Time  Line Contents
+==============================================================
+   107                                               def _numbers(self):
+   108         1         43.0     43.0    100.0          yield from range(5000)
+
+Total time: 0.003679 s
+
+Function: Worker._small_numbers at line 110
+
+Line #      Hits         Time  Per Hit   % Time  Line Contents
+==============================================================
+   110                                               def _small_numbers(self):
+   111      5000      36790.0      7.4    100.0          yield from range(50)
+```
+
 ---
 
 ## 🔧 Using `do_profile` without a decorator
@@ -231,17 +323,24 @@ worker = Worker()
 do_profile(follow=[worker._numbers])(worker.compute)()
 ```
 
+Will profile:
+
+- `compute`
+- `_numbers`
+
 ---
 
-## License
+## 📄 License
 
 This project is licensed under the **BSD-3-Clause License**.  
 See the [LICENSE](LICENSE) file for details.
 
 ---
 
-## Contributing
+## 🤝 Contributing
 
-Pull requests are welcome.  
-If you find a bug or want to propose an enhancement, open an issue on GitHub.
+Pull requests are welcome.
+
+If you discover a bug or would like to propose an enhancement, please
+open an issue or submit a pull request.
 
