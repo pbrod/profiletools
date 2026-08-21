@@ -16,7 +16,7 @@ keywords = ["profiling", "performance", "line_profiler", "cProfile", "timing"]
 classifiers = [
   "Programming Language :: Python :: 3",
   "Programming Language :: Python :: 3 :: Only",
-  "License :: OSI Approved :: MIT License",
+  "License :: OSI Approved :: BSD License",
   "Intended Audience :: Developers",
   "Topic :: Software Development :: Debuggers",
   "Topic :: Software Development :: Testing",

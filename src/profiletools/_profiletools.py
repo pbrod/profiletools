@@ -300,6 +300,8 @@ class TimeWith:
 
 
 def do_cprofile(
+    func: Callable[..., Any] | None = None,
+    *,
     sort: str = "cumulative",
 ) -> Callable[[Callable[..., Any]], Callable[..., Any]]:
     """
@@ -347,9 +349,14 @@ def do_cprofile(
 
         return profiled_func
 
+    # @do_cprofile
+    if func is not None:
+        return decorator(func)
+
+    # @do_cprofile(...)
     return decorator
 
 
 if __name__ == "__main__":
-    from numdifftools.testing import test_docstrings
+    from profiletools.testing import test_docstrings
     test_docstrings()
