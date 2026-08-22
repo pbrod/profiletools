@@ -43,10 +43,11 @@ name = "profiletools"
 version = "0.1.0"
 description = "Lightweight decorators and context managers for profiling Python code."
 readme = "README.md"
-requires-python = ">=3.9"
-license = { file = "LICENSE" }
+requires-python = ">=3.10"
+license = "BSD-3-Clause"
+license-files = ["LICENSE"]
 authors = [
-  { name = "Per", email = "you@example.com" }
+  { name = "Per A. Brodtkorb", email = "per.andreas.brodtkorb@gmail.com" }
 ]
 keywords = ["profiling", "performance", "line_profiler", "cProfile", "timing"]
 classifiers = [
