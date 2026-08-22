@@ -32,6 +32,12 @@ jobs:
 
       - name: Run tests
         run: |
+          # Ensure project root is on PYTHONPATH
+          export PYTHONPATH=$(pwd)
+
+          # Show path for debugging (optional)
+          echo "PYTHONPATH=$PYTHONPATH"
+
           pytest -q || echo "No tests found — skipping."
 
       - name: Run example scripts
