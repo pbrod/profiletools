@@ -9,7 +9,8 @@ Lightweight, decorator-based profiling utilities for Python.
 
 `profiletools` provides simple timing utilities, cProfile integration, and optional line-by-line profiling through `line_profiler`.
 
-It is designed to be:
+It provides a unified decorator-based interface for timing and profiling Python code and
+is designed to be:
 
 - minimal
 - dependency-light
@@ -66,7 +67,7 @@ Supports profiling:
 ## 🤔 Why profiletools?
  
 `profiletools` provides a simple decorator-based interface on top of
-Python profiling tools.
+Python's profiling tools.
  
 | Tool | Purpose |
 |--------|----------|
@@ -79,7 +80,7 @@ Python profiling tools.
 
 ## 🔍 Profiler Decision Tree (Quick Guide)
 
-Choose the right tool based on what you need:
+Use this quick decision tree to choose the right profiling tool for your task:
 
 ```text
 Start
@@ -90,16 +91,16 @@ Start
  │     └── Multi-statement micro-benchmark → timerit
  │
  ├── Need per-line detail?
- │     └── LineProfiler / profiletools @do_profile
+ │     └── LineProfiler / @do_profile
  │
  ├── Need per-function detail?
- │     └── cProfile / profiletools @do_cprofile
+ │     └── cProfile / @do_cprofile
  │
  ├── Need whole-program insight?
  │     ├── Call-stack timeline → PyInstrument
  │     └── CPU+GPU+memory → Scalene
  │
- ├── Profiling async/thread/gevent?
+ ├── Profiling threads/async/gevent?
  │     └── Yappi
  │
  ├── Profiling PyTorch GPU/autograd?
@@ -108,6 +109,21 @@ Start
  └── Want decorator-based targeted profiling?
        └── profiletools
 ```
+
+See the **External Profilers** section below for links and descriptions.
+
+---
+
+## 🔗 External Profilers (with homepage links)
+
+- **[LineProfiler](https://github.com/pyutils/line_profiler)** — line-by-line CPU profiler  
+- **[Scalene](https://github.com/plasma-umass/scalene)** — CPU+GPU+memory sampling profiler  
+- **[PyInstrument](https://github.com/joerick/pyinstrument)** — call-stack sampling profiler  
+- **[Yappi](https://github.com/sumerc/yappi)** — tracing profiler for multithreading, asyncio, gevent  
+- **[cProfile](https://docs.python.org/3/library/profile.html)** — builtin function-level profiler  
+- **[timeit](https://docs.python.org/3/library/timeit.html)** — builtin micro-benchmarking tool  
+- **[timerit](https://github.com/Erotemic/timerit)** — multi-statement micro-benchmarking  
+- **[torch.profiler](https://pytorch.org/docs/stable/profiler.html)** — PyTorch GPU & operator-level profiler
 
 ---
 
