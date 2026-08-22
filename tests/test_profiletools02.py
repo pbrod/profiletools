@@ -1,4 +1,3 @@
-import sys
 from importlib.util import find_spec
 
 import pytest
@@ -10,6 +9,7 @@ from .helpers import (
     ExpensiveClass4,
     _extract_do_profile_results,
     _get_number,
+    disable_profiler_cleanup,
     row_finder,
 )
 
@@ -47,7 +47,7 @@ class TestDoProfile:
         find_row("def _get_number():")
         find_row("@do_profile(follow=[_get_number])")
 
-        sys.setprofile(None)
+        disable_profiler_cleanup()
 
     def test_on_class_method_and_follow_function(self):
         class ExpensiveClass1:
@@ -69,7 +69,7 @@ class TestDoProfile:
         find_row("def _get_number():")
         find_row("@do_profile(follow=[_get_number])")
 
-        sys.setprofile(None)
+        disable_profiler_cleanup()
 
     def test_on_class_method_and_follow_class_method(self):
         class ExpensiveClass2:
@@ -100,7 +100,7 @@ class TestDoProfile:
         assert find_row("def expensive_method2(self):")[1] == 0, msg
         find_row("def _get_number2(self):")
 
-        sys.setprofile(None)
+        disable_profiler_cleanup()
 
     def test_on_all_class_methods(self):
         class ExpensiveClass3:
@@ -136,7 +136,7 @@ class TestDoProfile:
 
         find_row("def _get_number3(self):")
 
-        sys.setprofile(None)
+        disable_profiler_cleanup()
 
     def test_on_all_class_methods_without_decorator(self):
         with capture_stdout_and_stderr() as out:
@@ -155,7 +155,7 @@ class TestDoProfile:
 
         find_row("def _get_number4(self):")
 
-        sys.setprofile(None)
+        disable_profiler_cleanup()
 
     def test_follow_all_methods_excludes_inherited_methods(self):
         class Base:
@@ -192,7 +192,7 @@ class TestDoProfile:
         ]
         assert inherited == []
 
-        sys.setprofile(None)
+        disable_profiler_cleanup()
 
     def test_follow_all_methods_includes_inherited_methods(self):
         class Base:
@@ -224,4 +224,4 @@ class TestDoProfile:
         # Inherited method should also be present
         find_row("def base_method(self):")
 
-        sys.setprofile(None)
+        disable_profiler_cleanup()
