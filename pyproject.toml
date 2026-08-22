@@ -1,3 +1,39 @@
+# ---------------------------------------------------------------------------
+# Release Workflow (profiletools)
+#
+# Development:
+#   git checkout develop
+#   git pull origin develop
+#   ruff format
+#   ruff check
+#   mypy src/
+#   pytest tests
+#
+# Prepare release:
+#   # Update README, LICENSE, and CHANGELOG. Inspect and verify.
+#   git log vX.Y.(Z-1)..HEAD --oneline > log.txt
+#   git add .
+#   git commit
+#   git push
+#
+# Version bump:
+#   # Update version number X.Y.Z in this file (pyproject.toml).
+#
+# Release:
+#   git checkout master
+#   git pull origin master
+#   git merge --no-ff develop
+#   git push origin master        # Wait for CI to complete successfully
+#
+# Tag and publish:
+#   # Create a git tag vX.Y.Z that matches the version number in pyproject.toml
+#   git push --tags               # Triggers GitHub Actions release workflow
+#
+# Notes:
+#   - Publishing to PyPI occurs automatically when a tag beginning with 'v'
+#     is pushed and the GitHub release workflow succeeds.
+# ---------------------------------------------------------------------------
+
 [build-system]
 requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"

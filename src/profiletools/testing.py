@@ -23,7 +23,9 @@ def test_docstrings(filename: str | None = None) -> Any:
         print("Running doctests...")
 
     t0 = timer()
-    result = doctest.testmod(optionflags=(doctest.NORMALIZE_WHITESPACE | doctest.ELLIPSIS))
+    result = doctest.testmod(
+        optionflags=(doctest.NORMALIZE_WHITESPACE | doctest.ELLIPSIS)
+    )
     dt = timer() - t0
 
     print(f"Attempted: {result.attempted}, Failed: {result.failed}, Elapsed: {dt:.3f}s")

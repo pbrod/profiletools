@@ -28,11 +28,12 @@ https://www.pythoncentral.io/measure-time-in-python-time-time-vs-time-clock/
 # mypy: disable-error-code=return-value
 # mypy: disable-error-code=no-redef
 from __future__ import annotations
-import sys
+
 import cProfile
-import pstats
 import inspect
 import logging
+import pstats
+import sys
 import warnings
 from collections.abc import Callable, Sequence
 from functools import wraps
@@ -44,16 +45,14 @@ F = TypeVar("F", bound=Callable[..., Any])
 
 
 def _add_all_class_methods(
-    profiler: LineProfiler,
+    profiler: Any,
     instance: Any,
     except_: str = "",
     include_inherited_methods: bool = False,
 ) -> None:
     cls = type(instance)
     items = (
-        inspect.getmembers(cls)
-        if include_inherited_methods
-        else cls.__dict__.items()
+        inspect.getmembers(cls) if include_inherited_methods else cls.__dict__.items()
     )
     for name, member in items:
         if name == except_:
@@ -65,7 +64,7 @@ def _add_all_class_methods(
 
 
 def _add_function_or_classmethod(
-    profiler: LineProfiler,
+    profiler: Any,
     f: Any,
     args: tuple[Any, ...],
 ) -> None:
@@ -154,11 +153,14 @@ def do_profile(
         )
 
     if LineProfiler is None:
+
         def inner(func: F) -> F:
             @wraps(func)
             def nothing(*args: Any, **kwargs: Any) -> Any:
                 return func(*args, **kwargs)
+
             return nothing
+
         return inner
 
     def inner(func: F) -> F:
@@ -222,6 +224,7 @@ def timefun(fun: F) -> F:
     @timefun:square took ... seconds
     16
     """
+
     @wraps(fun)
     def measure_time(*args: Any, **kwargs: Any) -> Any:
         t1 = timer()
@@ -261,6 +264,7 @@ class TimeWith:
     task halfway took ... seconds
     task finished took ... seconds
     """
+
     def __init__(self, name: str = "", logger: logging.Logger | None = None) -> None:
         self.name = name
         self.logger = logger
@@ -371,17 +375,6 @@ def do_cprofile(
 
 
 if __name__ == "__main__":
-
     from profiletools.testing import test_docstrings
-    # test_docstrings()
-    @do_cprofile()
-    def work():
-        pass
 
-    work()
-
-    @do_cprofile
-    def work1():
-        pass
-
-    work1()
+    test_docstrings()

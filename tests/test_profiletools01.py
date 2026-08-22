@@ -1,4 +1,3 @@
-
 from profiletools import TimeWith, do_cprofile, timefun
 from profiletools.testing import capture_stdout_and_stderr
 from helpers import (
@@ -108,7 +107,10 @@ class TestDoCProfile:
         assert len(results), msg
         assert results[0][5].startswith("function calls in")
         assert results[0][0] > 50000
-        assert results[1] == "ncalls  tottime  percall  cumtime  percall filename:lineno(function)"
+        assert (
+            results[1]
+            == "ncalls  tottime  percall  cumtime  percall filename:lineno(function)"
+        )
         num_tests = 0
         for result in results[2:]:
             if result[5].endswith("(expensive_function)"):

@@ -6,8 +6,8 @@ to avoid line_profiler shutdown errors on Windows.
 
 import sys
 import time
-from profiletools import timefun, TimeWith, do_cprofile, do_profile
 
+from profiletools import TimeWith, do_cprofile, do_profile, timefun
 
 
 # ------------------------------------------------------------
@@ -38,6 +38,7 @@ def run_timewith():
         for x in range(50000):
             i = x**4
         timer.checkpoint("finished second part")
+    return i
 
 
 # ------------------------------------------------------------
@@ -46,6 +47,7 @@ def run_timewith():
 def calculate(x):
     time.sleep(0.1)
     return x**3
+
 
 @do_cprofile()
 def demo_cprofile():

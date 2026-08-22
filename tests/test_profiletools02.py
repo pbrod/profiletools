@@ -1,4 +1,3 @@
-
 from importlib.util import find_spec
 
 
@@ -15,7 +14,6 @@ from helpers import (
 
 HAS_LINE_PROFILER = find_spec("line_profiler") is not None
 FIRST_LINE = "Line #      Hits         Time  Per Hit   % Time  Line Contents"
-
 
 
 def test_do_profile_noop_without_line_profiler():
@@ -148,7 +146,6 @@ class TestDoProfile:
 
         find_row("def _get_number4(self):")
 
-
     def test_follow_all_methods_excludes_inherited_methods(self):
         class Base:
             def base_method(self):
@@ -178,12 +175,11 @@ class TestDoProfile:
 
         # Inherited method should not be present
         inherited = [
-            row for row in results
-            if isinstance(row, tuple)
-            and row[5].strip() == "def base_method(self):"
+            row
+            for row in results
+            if isinstance(row, tuple) and row[5].strip() == "def base_method(self):"
         ]
         assert inherited == []
-
 
     def test_follow_all_methods_includes_inherited_methods(self):
         class Base:
