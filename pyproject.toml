@@ -68,5 +68,7 @@ Homepage = "https://github.com/pbrod/profiletools"
 Source = "https://github.com/pbrod/profiletools"
 Issues = "https://github.com/pbrod/profiletools/issues"
 
-[tool.setuptools.packages.find]
-where = ["src"]
+[tool.setuptools]
+package-dir = {"" = "src"}
+packages = ["profiletools"]
+include-package-data = true
