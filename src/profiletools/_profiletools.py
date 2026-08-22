@@ -50,6 +50,16 @@ def disable_profiler_cleanup():
     sys.setprofile(None)
 
 
+def disable_line_profiler_weakref():
+    import line_profiler
+
+    try:
+        # Remove the weakref callback that crashes during interpreter shutdown
+        line_profiler._line_profiler._removeHandlerRef = lambda *args, **kwargs: None
+    except Exception:
+        pass
+
+
 def _add_all_class_methods(
     profiler: Any,
     instance: Any,
@@ -196,6 +206,7 @@ def do_profile(
             finally:
                 profiler.print_stats()
                 disable_profiler_cleanup()
+                disable_line_profiler_weakref()
 
         return profiled_func
 
