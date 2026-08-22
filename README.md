@@ -1,6 +1,6 @@
 # profiletools
 
-![CI Tests](https://github.com/pbrod/profiletools/actions/workflows/ci-tests.yml/badge.svg)
+![CI Tests](https://github.com/pbrod/profiletools/actions/workflows/ci_tests.yml/badge.svg)
 [![PyPI](https://img.shields.io/pypi/v/profiletools.svg)](https://pypi.org/project/profiletools/)
 ![Python Versions](https://img.shields.io/pypi/pyversions/profiletools.svg)
 [![License: BSD-3-Clause](https://img.shields.io/badge/License-BSD--3--Clause-blue.svg)](LICENSE)
