@@ -1,6 +1,7 @@
 from profiletools import TimeWith, do_cprofile, timefun
 from profiletools.testing import capture_stdout_and_stderr
-from helpers import (
+
+from .helpers import (
     _expensive_function,
     _extract_do_cprofile_results,
     _get_number,

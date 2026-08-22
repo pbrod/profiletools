@@ -1,14 +1,14 @@
 from importlib.util import find_spec
 
-
 import pytest
 
 from profiletools import do_profile
 from profiletools.testing import capture_stdout_and_stderr
-from helpers import (
+
+from .helpers import (
+    ExpensiveClass4,
     _extract_do_profile_results,
     _get_number,
-    ExpensiveClass4,
     row_finder,
 )
 
