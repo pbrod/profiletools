@@ -44,6 +44,12 @@ from typing import Any, TypeVar
 F = TypeVar("F", bound=Callable[..., Any])
 
 
+def disable_profiler_cleanup():
+    import sys
+
+    sys.setprofile(None)
+
+
 def _add_all_class_methods(
     profiler: Any,
     instance: Any,
@@ -189,6 +195,7 @@ def do_profile(
                 return func(*args, **kwargs)
             finally:
                 profiler.print_stats()
+                disable_profiler_cleanup()
 
         return profiled_func
 

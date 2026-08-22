@@ -2,12 +2,6 @@ from collections.abc import Callable
 from typing import Any
 
 
-def disable_profiler_cleanup():
-    import sys
-
-    sys.setprofile(None)
-
-
 def row_finder(rows: list[Any]) -> Callable[[str], tuple]:
     def find_row(text: str) -> tuple:
         row = next(
